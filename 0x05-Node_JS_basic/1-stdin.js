@@ -1,29 +1,26 @@
-#!/usr/bin/env node
+/**
+ * Prompts the user to enter their name, reads the input from STDIN,
+ * and displays a message containing the user's name.
+ *
+ * When the user ends the program, a closing message is displayed.
+ *
+ * @example
+ * // Output:
+ * // Welcome to Holberton School, what is your name?
+ * // Alice
+ * // Your name is: Alice
+ * // This important software is now closing
+ */
+process.stdout.write('Welcome to Holberton School, what is your name?\n');
 
-/* a simple ad hoc script to practice nodejs */
+process.stdin.on('readable', () => {
+  const chunk = process.stdin.read();
 
-const WELCOME_MESSAGE_STUB = 'Welcome to Holberton School, what is your name?\n';
+  if (chunk) {
+    process.stdout.write(`Your name is: ${chunk}`);
+  }
+});
 
-function school(message, callback) {
-  process.stdout.write(message);
-  process.stdin.on('data', (data) => {
-    callback(data);
-  });
-}
-
-function closingCallBack(data) {
-  process.stdout.write(`Your name is: ${data.toString()}`);
+process.stdin.on('end', () => {
   process.stdout.write('This important software is now closing\n');
-  process.exit();
-}
-
-function noClosingCallBack(data) {
-  process.stdout.write(`Your name is: ${data.toString()}`);
-  process.exit();
-}
-
-if (process.stdin.isTTY) {
-  school(WELCOME_MESSAGE_STUB, noClosingCallBack);
-} else {
-  school(WELCOME_MESSAGE_STUB, closingCallBack);
-}
+});
