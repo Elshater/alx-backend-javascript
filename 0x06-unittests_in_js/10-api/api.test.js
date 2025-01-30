@@ -1,99 +1,208 @@
-/* eslint-disable jest/expect-expect */
-const assert = require('assert');
-const http = require('http');
+const request = require('request');
+const { expect } = require('chai');
 
-// Set up the endpoint URLs
-const BASE_URL = 'http://localhost:7866';
-const LOGIN_URL = `${BASE_URL}/login`;
-const PAYMENTS_URL = `${BASE_URL}/available_payments`;
+describe('Integration Testing', () => {
+  describe('GET /', () => {
+    it('Code: 200 | Body: Welcome to the payment system', (done) => {
+      const options = {
+        url: 'http://localhost:7865',
+        method: 'GET',
+      };
 
-// Test the /login endpoint
-describe('/login', () => {
-  it('should return a welcome message with the username', () => new Promise((done) => {
-    // Define the request payload
-    const payload = JSON.stringify({ userName: 'john_doe' });
-
-    // Set up the request options
-    const options = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      url: LOGIN_URL,
-      body: payload,
-    };
-
-    // Send the request
-    const req = http.request(options, (res) => {
-      let data = '';
-
-      // Set up the response listener
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      // Set up the end listener
-      res.on('end', () => {
-        // Parse the response body
-        const body = JSON.parse(data);
-
-        // Check the status code
-        assert.strictEqual(res.statusCode, 200);
-
-        // Check the response message
-        assert.strictEqual(body.message, 'Welcome john_doe');
-
-        // Done
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        expect(body).to.equal('Welcome to the payment system');
         done();
       });
     });
+  });
 
-    // Send the request payload
-    req.write(payload);
+  describe('GET /cart/12', () => {
+    it('Responds with 200 and id 12 in msg', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/12',
+        method: 'GET',
+      };
 
-    // End the request
-    req.end();
-  }));
-});
-
-// Test the /available_payments endpoint
-describe('/available_payments', () => {
-  it('should return the list of available payments', () => new Promise((done) => {
-    // Set up the request options
-    const options = {
-      method: 'GET',
-      url: PAYMENTS_URL,
-    };
-
-    // Send the request
-    const req = http.request(options, (res) => {
-      let data = '';
-
-      // Set up the response listener
-      res.on('data', (chunk) => {
-        data += chunk;
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        expect(body).to.equal('Payment methods for cart 12');
+        done();
       });
+    });
+  });
 
-      // Set up the end listener
-      res.on('end', () => {
-        // Parse the response body
-        const body = JSON.parse(data);
+  describe('GET /cart/1', () => {
+    it('Responds with 200 and id 1 in msg', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/1',
+        method: 'GET',
+      };
 
-        // Check the status code
-        assert.strictEqual(res.statusCode, 200);
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        expect(body).to.equal('Payment methods for cart 1');
+        done();
+      });
+    });
+  });
 
-        // Check the response structure
-        assert.deepStrictEqual(body, {
+  describe('GET /cart/123', () => {
+    it('Responds with 200 and id 12 in msg', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/123',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        expect(body).to.equal('Payment methods for cart 123');
+        done();
+      });
+    });
+  });
+
+  describe('GET /cart/a12', () => {
+    it('Responds with 404', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/a12',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(404);
+        done();
+      });
+    });
+  });
+
+  describe('GET /cart/a12b', () => {
+    it('Responds with 404', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/a12b',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(404);
+        done();
+      });
+    });
+  });
+
+  describe('GET /cart/12b', () => {
+    it('Responds with 404', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/12b',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(404);
+        done();
+      });
+    });
+  });
+
+  describe('GET /cart/hello', () => {
+    it('Responds with 404', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/hello',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(404);
+        done();
+      });
+    });
+  });
+
+  describe('GET /cart/', () => {
+    it('Responds with 404', (done) => {
+      const options = {
+        url: 'http://localhost:7865/cart/',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(404);
+        done();
+      });
+    });
+  });
+
+  describe('GET /available_payments JSON string', () => {
+    it('Responds with 200 and correct JSON string', (done) => {
+      const options = {
+        url: 'http://localhost:7865/available_payments',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        expect(body).to.equal(
+          '{"payment_methods":{"credit_cards":true,"paypal":false}}'
+        );
+        done();
+      });
+    });
+  });
+
+  describe('GET /available_payments JSON parsed', () => {
+    it('Responds with 200 and correct JSON object when parsed', (done) => {
+      const options = {
+        url: 'http://localhost:7865/available_payments',
+        method: 'GET',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        const bodyParsed = JSON.parse(body);
+
+        const referenceBody = {
           payment_methods: {
             credit_cards: true,
             paypal: false,
           },
-        });
+        };
 
-        // Done
+        expect(bodyParsed).to.deep.equal(referenceBody);
         done();
       });
     });
+  });
 
-    // End the request
-    req.end();
-  }));
+  describe('POST /login with body', () => {
+    it('Responds with 200 and correct name Betty', (done) => {
+      const options = {
+        url: 'http://localhost:7865/login',
+        method: 'POST',
+        json: {
+          userName: 'Betty',
+        },
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        expect(body).to.equal('Welcome Betty');
+        done();
+      });
+    });
+  });
+
+  describe('POST /login with no body', () => {
+    it('Responds with 200 and correct name Undefined', (done) => {
+      const options = {
+        url: 'http://localhost:7865/login',
+        method: 'POST',
+      };
+
+      request(options, function (error, response, body) {
+        expect(response.statusCode).to.equal(200);
+        expect(body).to.equal('Welcome undefined');
+        done();
+      });
+    });
+  });
 });
